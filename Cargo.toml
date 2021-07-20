@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 ndarray = "0.15.0"
+plotlib = "0.5.1"
