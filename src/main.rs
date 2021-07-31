@@ -1,3 +1,5 @@
+mod functions;
+
 use ndarray::prelude::*;
 use plotlib::page::Page;
 use plotlib::repr::Plot;
