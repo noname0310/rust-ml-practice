@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
-use ndarray::prelude::*;
 use ndarray::Array;
 
-fn softmax<D: ndarray::Dimension>(x: &mut Array<f64, D>) -> Array<f64, D> {
-    let comparer = |x, y| {
+fn softmax<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
+    let mut result = x.clone();
+    let max = result.iter().max_by(|x, y| {
         if x < y { 
             Ordering::Less
         } else if x > y {
@@ -11,28 +11,20 @@ fn softmax<D: ndarray::Dimension>(x: &mut Array<f64, D>) -> Array<f64, D> {
         } else {
             Ordering::Equal
         }
-    };
-    let max = x.iter().max_by(comparer);
+    });
     if let Some(max) = max.cloned() {
-        let c = x.iter_mut().map(|e| *e - max);
-    }
-    for i in x.iter() {
-    }
-    //let sub = x - max;
-    x.clone()
+        result.map_mut(|e| *e = (e.clone() - max).exp());
+        let sum = result.sum();
+        result.map_mut(|e| *e = e.clone() / sum);
+    } else {
+        result.map_mut(|e| *e = e.exp());
+        let sum = result.sum();
+        result.map_mut(|e| *e = e.clone() / sum);
+    };
+    result
 }
-// def softmax(x):
-//     e_x = np.exp(x - np.max(x))
-//     return e_x / e_x.sum()
 
-// fn cross_entropy_error(y: ndarray<f32>, t: ndarray<f32>) -> f32 {
-//     if y.ndim == 1 {
-//         t = t.reshape(1, t.size);
-//         y = y.reshape(1, y.size);
-//     }
-//     if t.size == y.size {
-//         t = t.argmax(axis=1);
-//     }
-//     let batch_size = y.shape[0];
-//     -np.sum(np.log(y[np.arange(batch_size), t] + 1e-7)) / batch_size
-// }
+fn cross_entropy_error<D: ndarray::Dimension>(y: &Array<f64, D>, t: &Array<f64, D>) -> f64 {
+    let delta = 1e-7;
+    -(t * y.mapv(|x| (x + delta).log10())).sum()
+}
