@@ -1,54 +1,42 @@
 mod functions;
 
-use ndarray::prelude::*;
 use plotlib::page::Page;
 use plotlib::repr::Plot;
 use plotlib::view::ContinuousView;
-use plotlib::style::{PointMarker, PointStyle};
+use plotlib::style::{LineStyle};
 
 fn main() {
-    let arr = array![
-        [0, 1, 2 ,3],
-        [4, 5, 6, 7],
-        [8, 9, 10, 11]
-    ];
-    println!("{0}",arr.slice(s![0.., 1..]));
-    println!("{0}",arr.slice(s![1.., 1..]));
-    println!("{0}",arr.slice(s![1..2, 1..2])[[0, 0]]);
+    let range_start = -80;
+    let range_end = 80;
+    let vec: Vec<f64> = (range_start..range_end).into_iter().map(|x| x as f64 / 10.).collect();
 
-    // Scatter plots expect a list of pairs
-    let data1 = vec![
-        (-3.0, 2.3),
-        (-1.6, 5.3),
-        (0.3, 0.7),
-        (4.3, -1.4),
-        (6.4, 4.3),
-        (8.5, 3.7),
-    ];
+    let sigmoid_dataset = vec.iter()
+        .zip(functions::sigmoid_vec(&vec))
+        .map(|(x, y)| (x.clone(), y.clone()))
+        .collect();
+    
+    let softmax_dataset = vec.iter()
+        .zip(functions::softmax_vec(&vec))
+        .map(|(x, y)| (x.clone(), y.clone()))
+        .collect();
 
-    // We create our scatter plot from the data
-    let s1: Plot = Plot::new(data1).point_style(
-        PointStyle::new()
-            .marker(PointMarker::Square) // setting the marker to be a square
+    let sigmoid_plot: Plot = Plot::new(sigmoid_dataset).line_style(
+        LineStyle::new()
             .colour("#DD3355"),
-    ); // and a custom colour
+    );
 
-    // We can plot multiple data sets in the same view
-    let data2 = vec![(-1.4, 2.5), (7.2, -0.3)];
-    let s2: Plot = Plot::new(data2).point_style(
-        PointStyle::new() // uses the default marker
-            .colour("#35C788"),
-    ); // and a different colour
+    let softmax_plot: Plot = Plot::new(softmax_dataset).line_style(
+        LineStyle::new()
+            .colour("#DD0055"),
+    );
 
-    // The 'view' describes what set of data is drawn
     let v = ContinuousView::new()
-        .add(s1)
-        .add(s2)
-        .x_range(-5., 10.)
-        .y_range(-2., 6.)
-        .x_label("Some varying variable")
-        .y_label("The response of something");
+        .add(sigmoid_plot)
+        .add(softmax_plot)
+        .x_range((range_start / 10) as f64, (range_end / 10) as f64)
+        .y_range(0., 1.)
+        .x_label("x")
+        .y_label("y");
 
-    // A page with a single view is then saved to an SVG file
     Page::single(&v).save("scatter.svg").unwrap();
 }
