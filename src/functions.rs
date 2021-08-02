@@ -33,6 +33,22 @@ pub fn softmax_vec(x: &Vec<f64>) -> Vec<f64> {
     result
 }
 
+pub fn relu_vec(x: &Vec<f64>) -> Vec<f64> {
+    let mut result = x.clone();
+    for i in result.iter_mut() {
+        *i = if *i < 0.0 { 0.0 } else { *i }
+    }
+    result
+}
+
+pub fn step_vec(x: &Vec<f64>) -> Vec<f64> {
+    let mut result = x.clone();
+    for i in result.iter_mut() {
+        *i = if *i < 0.0 { 0.0 } else { 1.0 }
+    }
+    result
+}
+
 pub fn sigmoid<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
     let mut sigmoid = x.clone();
     for (s, e) in sigmoid.iter_mut().zip(x) {
