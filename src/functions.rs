@@ -87,19 +87,13 @@ pub fn cross_entropy_error<D: ndarray::Dimension>(y: &Array<f64, D>, t: &Array<f
 
 pub fn numerical_gradient<D: ndarray::Dimension>(
     f: fn(f64) -> f64, 
-    x: &mut Array<f64, D>) -> Array<f64, Ix1> {
-    let h = 1e-4;
+    x: &Array<f64, D>) -> Array<f64, Ix1> {
+    let delta = 1e-5;
     let mut grad = Array::<f64, Ix1>::zeros((3).f());
-    for (i, g) in x.iter_mut().zip(&mut grad) {
-        let tmp_val = i.clone();
-        *i = tmp_val + h;
-        let fxh1 = f(*i);
-
-        *i = tmp_val - h;
-        let fxh2 = f(*i);
-        *g = (fxh1 - fxh2) / (2. * h);
-        
-        *i = tmp_val;
+    for (i, g) in x.iter().zip(&mut grad) {
+        let fxh1 = f(*i + delta);
+        let fxh2 = f(*i - delta);
+        *g = (fxh1 - fxh2) / (2. * delta);
     }
     grad
 }
