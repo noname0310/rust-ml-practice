@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use ndarray::prelude::*;
 use ndarray::{Array, Ix1};
 
@@ -25,11 +24,13 @@ pub fn softmax<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
     exp_x / sum_exp_x
 }
 
+#[allow(dead_code)]
 pub fn cross_entropy_error<D: ndarray::Dimension>(y: &Array<f64, D>, t: &Array<f64, D>) -> f64 {
     let delta = 1e-7;
     -(t * y.mapv(|x| (x + delta).log10())).sum()
 }
 
+#[allow(dead_code)]
 pub fn numerical_gradient<D: ndarray::Dimension>(
     f: fn(f64) -> f64, 
     x: &Array<f64, D>) -> Array<f64, Ix1> {

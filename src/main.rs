@@ -1,5 +1,7 @@
 mod functions;
+mod model;
 
+use model::network_test;
 use ndarray::Array1;
 use plotlib::page::Page;
 use plotlib::repr::Plot;
@@ -9,8 +11,8 @@ use plotlib::style::{LineStyle};
 fn make_plot<T: Into<String>>(vec: &Array1<f64>, f: fn(v: &Array1<f64>) -> Array1<f64>, colour: T) -> Plot {
     Plot::new(
         vec.iter()
-        .zip(f(&vec))
-        .map(|(x, y)| (x.clone(), y.clone()))
+        .zip(f(vec))
+        .map(|(x, y)| (*x, y))
         .collect()
     ).line_style(
     LineStyle::new()
@@ -19,6 +21,8 @@ fn make_plot<T: Into<String>>(vec: &Array1<f64>, f: fn(v: &Array1<f64>) -> Array
 }
 
 fn main() {
+    network_test();
+    
     let range_start = -80;
     let range_end = 80;
     let vec: Array1<f64> = (range_start..range_end).into_iter().map(|x| x as f64 / 10.).collect();
