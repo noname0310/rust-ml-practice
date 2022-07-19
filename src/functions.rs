@@ -2,38 +2,7 @@ use std::cmp::Ordering;
 use ndarray::prelude::*;
 use ndarray::{Array, Ix1};
 
-pub fn sigmoid_vec(x: &Vec<f64>) -> Vec<f64> {
-    let mut sigmoid = x.clone();
-    for (s, e) in sigmoid.iter_mut().zip(x) {
-        *s = 1.0 / (1.0 + ((-e).exp2()));
-    }
-    sigmoid
-}
-
-pub fn softmax_vec(x: &Vec<f64>) -> Vec<f64> {
-    let mut result = x.clone();
-    let max = result.iter().max_by(|x, y| {
-        if x < y { 
-            Ordering::Less
-        } else if x > y {
-            Ordering::Greater
-        } else {
-            Ordering::Equal
-        }
-    });
-    if let Some(max) = max.cloned() {
-        result.iter_mut().for_each(|e| *e = (e.clone() - max).exp());
-        let sum:f64 = result.iter().sum();
-        result.iter_mut().for_each(|e| *e = e.clone() / sum);
-    } else {
-        result.iter_mut().for_each(|e| *e = e.exp());
-        let sum:f64 = result.iter().sum();
-        result.iter_mut().for_each(|e| *e = e.clone() / sum);
-    };
-    result
-}
-
-pub fn relu_vec(x: &Vec<f64>) -> Vec<f64> {
+pub fn relu<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
     let mut result = x.clone();
     for i in result.iter_mut() {
         *i = if *i < 0.0 { 0.0 } else { *i }
@@ -41,7 +10,7 @@ pub fn relu_vec(x: &Vec<f64>) -> Vec<f64> {
     result
 }
 
-pub fn step_vec(x: &Vec<f64>) -> Vec<f64> {
+pub fn step<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
     let mut result = x.clone();
     for i in result.iter_mut() {
         *i = if *i < 0.0 { 0.0 } else { 1.0 }
