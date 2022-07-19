@@ -3,27 +3,15 @@ use ndarray::prelude::*;
 use ndarray::{Array, Ix1};
 
 pub fn relu<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
-    let mut result = x.clone();
-    for i in result.iter_mut() {
-        *i = if *i < 0.0 { 0.0 } else { *i }
-    }
-    result
+    x.mapv(|x| if x > 0.0 { x } else { 0.0 })
 }
 
 pub fn step<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
-    let mut result = x.clone();
-    for i in result.iter_mut() {
-        *i = if *i < 0.0 { 0.0 } else { 1.0 }
-    }
-    result
+    x.mapv(|x| if x < 0.0 { 0.0 } else { 1.0 })
 }
 
 pub fn sigmoid<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
-    let mut sigmoid = x.clone();
-    for (s, e) in sigmoid.iter_mut().zip(x) {
-        *s = 1.0 / (1.0 + ((-e).exp2()));
-    }
-    sigmoid
+    x.mapv(|x| 1.0 / (1.0 + (-x).exp()))
 }
 
 pub fn softmax<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
