@@ -14,27 +14,15 @@ pub fn sigmoid<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
     x.mapv(|x| 1.0 / (1.0 + (-x).exp()))
 }
 
+pub fn max<D: ndarray::Dimension>(x: &Array<f64, D>) -> f64 {
+    x.iter().fold(std::f64::MIN, |acc, &x| if x > acc { x } else { acc })
+}
+
 pub fn softmax<D: ndarray::Dimension>(x: &Array<f64, D>) -> Array<f64, D> {
-    let mut result = x.clone();
-    let max = result.iter().max_by(|x, y| {
-        if x < y { 
-            Ordering::Less
-        } else if x > y {
-            Ordering::Greater
-        } else {
-            Ordering::Equal
-        }
-    });
-    if let Some(max) = max.cloned() {
-        result.map_mut(|e| *e = (e.clone() - max).exp());
-        let sum = result.sum();
-        result.map_mut(|e| *e = e.clone() / sum);
-    } else {
-        result.map_mut(|e| *e = e.exp());
-        let sum = result.sum();
-        result.map_mut(|e| *e = e.clone() / sum);
-    };
-    result
+    let c = max(x);
+    let exp_x = x.mapv(|x| (x - c).exp());
+    let sum_exp_x = exp_x.sum();
+    exp_x / sum_exp_x
 }
 
 pub fn cross_entropy_error<D: ndarray::Dimension>(y: &Array<f64, D>, t: &Array<f64, D>) -> f64 {
