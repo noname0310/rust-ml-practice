@@ -33,4 +33,8 @@ fn main() {
         .y_label("y");
 
     Page::single(&v).save("scatter.svg").unwrap();
+    // App::build()
+    //     .add_plugins(DefaultPlugins)
+    //     .add_plugin(HelloPlugin)
+    //     .run();
 }
