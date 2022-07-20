@@ -1,5 +1,6 @@
 mod functions;
 mod mlp;
+mod deep;
 
 use ndarray::Array1;
 use plotlib::page::Page;
