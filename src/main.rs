@@ -1,7 +1,6 @@
 mod functions;
-mod model;
+mod mlp;
 
-use model::network_test;
 use ndarray::Array1;
 use plotlib::page::Page;
 use plotlib::repr::Plot;
@@ -21,7 +20,7 @@ fn make_plot<T: Into<String>>(vec: &Array1<f64>, f: fn(v: &Array1<f64>) -> Array
 }
 
 fn main() {
-    network_test();
+    mlp::network_test();
     
     let range_start = -80;
     let range_end = 80;

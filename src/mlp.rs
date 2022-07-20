@@ -1,5 +1,6 @@
-use ndarray::{Array1, Array2, array};
+use ndarray::{Array1, Array2, array, Array};
 
+#[derive(Debug)]
 struct Layer {
     perceptrons: Array2<f64>,
     biases: Array1<f64>,
@@ -19,13 +20,22 @@ impl Layer {
         }
     }
 
-    pub fn forward(&self, x: &Array2<f64>) -> Array2<f64> {
-        x.dot(&self.perceptrons.t())
-            .mapv(|x| (self.activation_function)(x))
-            .mapv(|x| x + self.biases[0])
+    pub fn forward(&self, x: &Array2<f64>, apply_activation: bool) -> Array2<f64> {
+        let mut result = Array::from_iter( 
+            x.dot(&self.perceptrons)
+                .into_iter().zip(self.biases.iter())
+                .map(|(x, b)| x + b)
+        );
+
+        if apply_activation {
+            result.mapv_inplace(|x| (self.activation_function)(x));
+        }
+
+        result.into_shape((x.shape()[0], self.perceptrons.shape()[1])).unwrap()
     }
 }
 
+#[derive(Debug)]
 struct Network {
     layers: Vec<Layer>
 }
@@ -38,10 +48,14 @@ impl Network {
     pub fn forward(&self, x: &Array1<f64>) -> Array1<f64> {
         let x_len = x.len();
         let mut y = x.clone().into_shape((1, x_len)).unwrap();
-        for layer in &self.layers {
-            y = layer.forward(&y);
+        
+        for i in 0..self.layers.len() - 1 {
+            y = self.layers[i].forward(&y, true);
         }
-        y.into_shape((1,)).unwrap()
+
+        y = self.layers[self.layers.len() - 1].forward(&y, false);
+
+        y.into_shape((x_len,)).unwrap()
     }
 }
 
@@ -69,7 +83,8 @@ pub fn network_test() {
     );
 
     let network = Network::new(vec![layer1, layer2, layer3]);
+
     let x = array![1.0, 0.5];
     let y = network.forward(&x);
-    println!("{:?}", y);
+    println!("{y}");
 }
